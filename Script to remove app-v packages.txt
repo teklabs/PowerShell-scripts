@@ -1,0 +1,55 @@
+Import-Module AppvClient
+$Global:More = $True
+Function RemoveApp
+   {
+      $AllPackages = Get-AppvClientPackage
+      If ($AllPackages.Count -ge 0 )
+      {
+         $i = 1
+         Write-Host "The following packages were found on this computer:"
+         ForEach($Package in $AllPackages)
+         {
+            write-host `t $i - $Package.Name
+            $i += 1
+         }
+         $NumbertoRemove = Read-Host "Which one would you like to remove? Type 0 if none"
+         If ($NumbertoRemove -eq 0)
+         {
+            Write-Host "Not removing any App-V Client Package"
+            $Global:More = $False
+            Exit
+         }
+         else
+         {
+            If ($NumbertoRemove -le $AllPackages.Count)
+            {
+               $NumbertoRemove -= 1
+               Write-Host "Removing package" $AllPackages[$NumbertoRemove].Name
+               $PackageToRemove = $AllPackages[$NumbertoRemove]
+               If ($PackageToRemove.IsPublishedGlobally)
+                  {Unpublish-AppvClientPackage $AllPackages[$NumbertoRemove]}
+               Remove-AppvClientPackage $AllPackages[$NumbertoRemove]
+               Write-Host "AppV Client Package has been removed"
+            }
+            else
+            {
+               Write-Host "Number outside of bound. Please rerun script"
+               $Global:More = $False
+               Exit
+            }
+         }
+      }
+      else
+      {
+         Write-Host "No App-V Client Packages found!"
+         Write-Host "Quiting!"
+         $Global:More = $False
+         Exit
+      }
+} 
+Do {
+   RemoveApp
+   $Answer = Read-Host "Would you like to remove more? [y] Yes [N] No"
+   If ($Answer.ToUpper() -ne "Y"){$More = $False}
+}
+while ($More -eq $True)
