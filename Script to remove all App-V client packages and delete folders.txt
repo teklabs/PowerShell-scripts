@@ -1,0 +1,17 @@
+#Script to remove all App-V client packages and delete folders.
+$CurrentPolicy = Get-ExecutionPolicy -Scope LocalMachine
+Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Force
+Import-Module "C:\Program Files\Microsoft Application Virtualization\Client\AppvClient\AppvClient.psd1"
+net stop AppVClient
+Get-AppvClientPackage -All | Remove-AppVClientPackage
+net stop AppVClient
+Set-Location -Path env: Remove-Item C:\ProgramData\App-V\* -recurse
+$UserAppData = Get-Content -Path appdata
+Remove-Item $UserAppData\Microsoft\AppV\Client\Catalog\Packages\* -recurse
+Remove-Item $UserAppData\Microsoft\AppV\Client\VFS\* -recurse
+$UserAppData = Get-Content -Path localappdata
+Remove-Item $UserAppData\Microsoft\AppV\Client\Integration\* -recurse
+Remove-Item $UserAppData\Microsoft\AppV\Client\VFS\* -recurse
+net start AppVClient
+Get-AppvPublishingServer | Sync-AppvPublishingServer
+Set-ExecutionPolicy -ExecutionPolicy $CurrentPolicy -Force
