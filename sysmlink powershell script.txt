@@ -1,0 +1,11 @@
+cls
+$test1 = test-path -path '\\mymachine\e$\DPM_SQL_PROTECT'
+
+if ($test1 -eq $false) {
+	$s = new-pssession -computername mymachine  <br/>
+    enter-pssession $s
+	Invoke-Command -Session $s -ScriptBlock {set-location "e:\"}
+	Invoke-Command -Session $s -ScriptBlock {& cmd /c "mklink /d DPM_SQL_PROTECT c:\temp\DPM_SQL_PROTECT\"}
+  exit-pssession
+  remove-pssession $s
+}
